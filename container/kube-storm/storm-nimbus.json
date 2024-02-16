@@ -1,0 +1,33 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "nimbus",
+    "labels": {
+      "name": "nimbus"
+    }
+  },
+  "spec": {
+    "containers": [
+      {
+        "name": "nimbus",
+        "image": "kevin2333/storm-nimbus:latest",
+        "ports": [
+          {
+            "containerPort": 6627
+          }
+        ],
+        "resources": {
+          "limits": {
+            "cpu": "1600m",
+            "memory": "2Gi",
+            "ephemeral-storage": "4Gi"
+          }
+        }
+      }
+    ],
+    "nodeSelector": {
+       "name" : "master"
+    }
+  }
+}
