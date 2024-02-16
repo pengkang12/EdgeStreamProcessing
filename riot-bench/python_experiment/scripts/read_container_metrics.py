@@ -59,4 +59,10 @@ def readMetrics(name):
         request(name, query)
 
 NAME = sys.argv[1]
+START_TIME= sys.argv[2]
+END_TIME=sys.argv[3]
+if START_TIME and END_TIME:
+    dataTime[name][0] = START_TIME
+    dataTime[name][1] = END_TIME
+
 readMetrics(NAME)

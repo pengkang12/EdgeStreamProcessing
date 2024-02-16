@@ -28,7 +28,7 @@ sleep $[ 60 - $(date +%s) % 60  ]
 
 # create application
 scale="10"
-baseline=$1
+baseline="beaver"
 # remove application
 #kubectl exec nimbus -- /bin/bash ${home}riot-bench/python_experiment/scripts/run_${app}.sh $scale beaver
 kubectl exec nimbus -- /bin/bash ${home}riot-bench/python_experiment/scripts/run_ETL_sys.sh 1.2 $baseline
@@ -41,7 +41,7 @@ kubectl exec nimbus -- /bin/bash ${home}riot-bench/python_experiment/scripts/run
 sleep 10
 
 sleep 300
-echo "`date` $baseline" >> start_time.log
+START_TIME="`date`"
 # start to control CPU resource
 
 # clear application data
@@ -58,9 +58,11 @@ python3.7 scripts/perf.py >> ${LOG_FILE} &
 
 sleep $[ 60 - $(date +%s) % 60  ]
 done
+END_TIME= "`date`"
 
+# extract data
 METHOD="beaver"
-python3 ../read_container_metrics.py $METHOD > ${METHOD}.log
+python3 ../read_container_metrics.py $START_TIME $END_TIME > ${METHOD}.log
 sed  "s/::\[/\, /g; s/\]//g; /^121/d; "  ${METHOD}.log  > Util_${METHOD}.txt
 
 # read latency
