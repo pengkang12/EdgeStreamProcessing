@@ -30,14 +30,13 @@ sleep $[ 60 - $(date +%s) % 60  ]
 scale="10"
 baseline="beaver"
 # remove application
-#kubectl exec nimbus -- /bin/bash ${home}riot-bench/python_experiment/scripts/run_${app}.sh $scale beaver
-kubectl exec nimbus -- /bin/bash ${home}riot-bench/python_experiment/scripts/run_ETL_sys.sh 1.2 $baseline
+kubectl exec nimbus -- /bin/bash ${home}riot-bench/experiment/scripts/run_ETL_sys.sh 1.2 $baseline
 sleep 10
-kubectl exec nimbus -- /bin/bash ${home}riot-bench/python_experiment/scripts/run_PREDICT_sys.sh 0.6 $baseline 
+kubectl exec nimbus -- /bin/bash ${home}riot-bench/experiment/scripts/run_PREDICT_sys.sh 0.6 $baseline 
 sleep 10
-kubectl exec nimbus -- /bin/bash ${home}riot-bench/python_experiment/scripts/run_ETL_taxi.sh 1.2 $baseline 
+kubectl exec nimbus -- /bin/bash ${home}riot-bench/experiment/scripts/run_ETL_taxi.sh 1.2 $baseline 
 sleep 10
-kubectl exec nimbus -- /bin/bash ${home}riot-bench/python_experiment/scripts/run_PREDICT_taxi.sh 0.6 $baseline 
+kubectl exec nimbus -- /bin/bash ${home}riot-bench/experiment/scripts/run_PREDICT_taxi.sh 0.6 $baseline 
 sleep 10
 
 sleep 300
