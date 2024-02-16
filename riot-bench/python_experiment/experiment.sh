@@ -45,11 +45,12 @@ echo "`date` $baseline" >> start_time.log
 # start to control CPU resource
 
 # clear application data
-LOG="data/"
+LOG="results/"
 rm ${LOG}perf.log
-sleep $[ 60 - $(date +%s) % 60  ]
 
-LOG_FILE="data/perf.log"
+# data collection
+LOG_FILE="results/perf.log"
+sleep $[ 60 - $(date +%s) % 60  ]
 for i in {1..125}
 do
 sleep 56
@@ -58,3 +59,13 @@ python3.7 scripts/perf.py >> ${LOG_FILE} &
 sleep $[ 60 - $(date +%s) % 60  ]
 done
 
+METHOD="beaver"
+python3 ../read_container_metrics.py $METHOD > ${METHOD}.log
+sed  "s/::\[/\, /g; s/\]//g; /^121/d; "  ${METHOD}.log  > Util_${METHOD}.txt
+
+# read latency
+echo $(grep latency perf.log | awk '{print $4}' ) >> performance.txt
+# read throughput
+echo $(grep latency perf.log | awk '{print $6}' ) >> performance.txt
+# read success tuple
+echo $(grep latency perf.log | awk '{print $8}' ) >> performance.txt
