@@ -47,12 +47,6 @@ echo "`date` $baseline" >> start_time.log
 # clear application data
 LOG="data/"
 rm ${LOG}perf.log
-rm /tmp/skopt*
-
-redis-cli flushall
-
-ps aux | grep performance | awk '{print $2}' | xargs  kill -9
-
 sleep $[ 60 - $(date +%s) % 60  ]
 
 LOG_FILE="data/perf.log"
