@@ -1,4 +1,4 @@
-# Storm example
+### Storm example
 
 Following this example, you will create a functional [Apache
 Storm](http://storm.apache.org/) cluster using Kubernetes and
@@ -171,11 +171,6 @@ test
 bin/storm jar examples/storm-starter/storm-starter-2.1.0.jar org.apache.storm.starter.WordCountTopology wordCountTopology
 ```
 
-# pay attention
+## pay attention
 
-if we want to runing an application into different pods. We must modify pod's /etc/hosts file to write the information about host and ip. Otherwise, the application can't recognize the hostname. 
-
-
-<!-- BEGIN MUNGE: GENERATED_ANALYTICS -->
-[![Analytics](https://kubernetes-site.appspot.com/UA-36037335-10/GitHub/examples/storm/README.md?pixel)]()
-<!-- END MUNGE: GENERATED_ANALYTICS -->
+If we want to runing an application into different pods. We must modify pod's /etc/hosts file to write the information about host and ip. Otherwise, the application can't recognize the hostname. 
