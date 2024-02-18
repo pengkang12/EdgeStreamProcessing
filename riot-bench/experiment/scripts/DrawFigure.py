@@ -18,7 +18,7 @@ import io
 import matplotlib.pyplot as plt
 plt.style.use('seaborn-v0_8-colorblind')
 
-SMALL_SIZE = 14
+SMALL_SIZE = 20
 MEDIUM_SIZE = 20
 BIGGER_SIZE = 22
 
@@ -118,8 +118,8 @@ def read_data(dataFolder):
             perf_data[metric][name] = [x if x!=0 else 30000 for x in perf_data[metric][name]]
     return perf_data
 
-perf_data = read_data(dataFolder)
-perf_data1 = read_data(dataFolder1)
+perf_data1 = read_data(dataFolder)
+perf_data = read_data(dataFolder1)
 perf_data2 = read_data(dataFolder2)
 
 
@@ -127,7 +127,7 @@ perf_data2 = read_data(dataFolder2)
 def draw_fig(data_latency, data_throughput=None, name=None):
     # draw latency
     # draw throughput
-    plt.figure(figsize=(7,4))
+    plt.figure(figsize=(8,4))
     etl_sys = [x*20/1000 for i, x in enumerate(data_throughput) if i % 4 == 0][:121]
     etl_taxi = [x /1000 for i, x in enumerate(data_throughput) if i % 4 == 1][:121]
     pred_sys = [x*20/1000 for i, x in enumerate(data_throughput) if i % 4 == 2][:121]
@@ -138,7 +138,7 @@ def draw_fig(data_latency, data_throughput=None, name=None):
     plt.plot(x, etl_taxi, label="ETL-TAXI", marker='x',  markersize="10")
     plt.plot(x, pred_sys, label="PRED-SYS", marker='*', )
     plt.plot(x, pred_taxi, label="PRED-TAXI", marker='+',  markersize="10")
-    plt.legend(bbox_to_anchor=(1.2, 1.2), ncol=4, fontsize="14",)
+    plt.legend(bbox_to_anchor=(1.1, 1.25), ncol=4, fontsize=16,)
     plt.xlabel("minutes")
     plt.ylabel("Input Rate (k/min)")
     plt.yscale('log')
@@ -153,22 +153,47 @@ def draw_throughputOne(data, savedname, is_download=None):
     # draw latency
     method_name = ['Amnis', 'Coda', 'RStorm', 'Storm']
     name = "ETL-SYS"
-    i = 0
-    if name:
-        print(name)
+    value = data[name]
+    plt.figure(figsize=(8,6))
+    lines = []
+    for method in method_name:
+        y = value[method]
+        x = range(0, len(y))
+        line = plt.plot(x, y, label=method, marker=marker[method])
+        lines.append(line)
+
+    plt.ylabel("Effective throughput (k/min)")
+    plt.xlabel('minutes')
+    plt.legend(bbox_to_anchor=(1., 1.2), ncol=4, fontsize=17,)
+    plt.tight_layout()
+    fileName = 'all_{}.pdf'.format(savedname)
+    #plt.savefig(fileName, bbox_inches='tight')
+    #files.download(fileName)
+    plt.show()
+
+def draw_throughputTwo(data1, data2, savedname, is_download=None):
+    fig, axs = plt.subplots(1, 2, figsize=(12, 5))
+    NAME = "ETL-SYS"
+    data = {"(a) Baseline": data1[NAME],
+            "(b) Increased network delay": data2[NAME]}
+
+    method_name = ['Amnis', 'Coda', 'RStorm', 'Storm']
+    for i, name in enumerate(data.keys()):
         value = data[name]
-        plt.figure(figsize=(8,5))
         lines = []
         for method in method_name:
             y = value[method]
             x = range(0, len(y))
-            line = plt.plot(x, y, label=method, marker=marker[method])
+            line = axs[i].plot(x, y, label=method, marker=marker[method])
             lines.append(line)
+        if i == 0:
+            axs[i].set_ylabel("Effective througput (k/min)", fontsize=22)
+        axs[i].set_xlabel('minutes', fontsize=22)
+        axs[i].set_title(name, y=-0.35, fontsize=22)
+    Line, Label = axs[0].get_legend_handles_labels()
+    fig.legend(Line, Label,  bbox_to_anchor=(0.9, 1.1), ncol=5)
 
-        plt.ylabel("Effective throughput (k/min)")
-        plt.xlabel('minutes')
-    plt.legend(loc="upper right")
-    plt.tight_layout()
+    fig.tight_layout()
     fileName = 'all_{}.pdf'.format(savedname)
     plt.savefig(fileName, bbox_inches='tight')
     files.download(fileName)
@@ -179,9 +204,10 @@ result = processing_data(perf_data['successTuple'], True)
 result1 = processing_data(perf_data2['successTuple'], True)
 result2 = processing_data(perf_data1['successTuple'], True)
 
-draw_throughputOne(result, 'motivation1')
-draw_throughputOne(result1, 'motivation2')
-draw_throughputOne(result2, 'motivation3')
+#draw_throughputOne(result, 'motivation1')
+#draw_throughputOne(result1, 'motivation2')
+#draw_throughputOne(result2, 'motivation3')
+draw_throughputTwo(result, result2, 'motivation')
 
 
 
@@ -276,7 +302,7 @@ draw_throughputACC(result2, 'successTuple')
 resourceList = ["CPU", "Network_Trans", "Network_Rec", "Mem", "NODE_CPU", "NODE_Network_Trans", "NODE_Network_Rec", "NODE_Mem"]
 sys_data = {}
 for app in ["Amnis", "Beaver", "Coda", "RStorm", "Storm"]:
-    data = pd.read_csv('{}{}.txt'.format(dataFolder, app), header=None)
+    data = pd.read_csv('{}{}.txt'.format(dataFolder1, app), header=None)
     data = data.iloc[:,:]
     sys_data[app] = {
         "CPU": data[0:12].values.tolist(),
@@ -405,7 +431,7 @@ def drawHeatMap(conf_matrix1=None, conf_matrix2=None, operator=None, labelName=[
     #Create pandas dataframe with confusion matrix
     methods = ["Storm", "RStorm", "Amnis", "Coda", "Beaver"]
 
-    fig, axs = plt.subplots(1, 3, figsize=(8, 6), gridspec_kw={'width_ratios':[1,1,0.08]})
+    fig, axs = plt.subplots(1, 3, figsize=(6, 4), gridspec_kw={'width_ratios':[1,1,0.08]})
     #axs[0].get_shared_y_axes().join(axs[1])
 
     conf_matrix_df1 = pd.DataFrame(conf_matrix1,columns=methods,index=operator)
@@ -418,24 +444,24 @@ def drawHeatMap(conf_matrix1=None, conf_matrix2=None, operator=None, labelName=[
                       #cmap=cmap,
                       fmt='.5g', linewidths=1, linecolor='lightgray',
             annot_kws={
-                'fontsize': 16,
+                'fontsize': 20,
                 'fontweight': 'bold',
                 'fontfamily': 'serif'
             },
             vmax=3,
             cbar=False,
             ax=axs[0])
-    ax1.set_xticklabels(ax1.get_xmajorticklabels(), fontsize = 16 )
-    ax1.set_yticklabels(ax1.get_ymajorticklabels(), fontsize = 16)
+    ax1.set_xticklabels(ax1.get_xmajorticklabels(), fontsize = 20 )
+    ax1.set_yticklabels(ax1.get_ymajorticklabels(), fontsize = 20)
 
-    ax1.set_xlabel('methods', fontsize=18)
-    ax1.xaxis.set_label_coords(1.05, -0.23)
-    ax1.set_title(fileName+'-SYS')
+    ax1.set_xlabel('methods', fontsize=20)
+    ax1.xaxis.set_label_coords(1.05, -0.35)
+    ax1.set_title(fileName+'-SYS', fontsize = 20)
     ax2 = sns.heatmap(conf_matrix_df2,
                       #cmap=cmap,
                       fmt='.5g', linewidths=1, linecolor='lightgray',
             annot_kws={
-                'fontsize': 16,
+                'fontsize': 20,
                 'fontweight': 'bold',
                 'fontfamily': 'serif'
             },
@@ -444,10 +470,10 @@ def drawHeatMap(conf_matrix1=None, conf_matrix2=None, operator=None, labelName=[
             ax=axs[1])
 
 
-    ax2.set_xticklabels(ax2.get_xmajorticklabels(), fontsize = 16)
+    ax2.set_xticklabels(ax2.get_xmajorticklabels(), fontsize = 20)
     ax2.set_ylabel('')
     ax2.set_yticks([])
-    ax2.set_title(fileName+'-TAXI')
+    ax2.set_title(fileName+'-TAXI', fontsize = 20)
     for ax in [ax1, ax2]:
         tl = ax.get_xticklabels()
         ax.set_xticklabels(tl, rotation=60)
@@ -455,8 +481,8 @@ def drawHeatMap(conf_matrix1=None, conf_matrix2=None, operator=None, labelName=[
     # Manually specify colorbar labelling after it's been generated
     colorbar = ax2.collections[0].colorbar
     colorbar.set_ticks([1.33, 2, 2.66])
-    colorbar.set_ticklabels(labelName)
-    colorbar.ax.tick_params(labelsize=16)
+    colorbar.set_ticklabels(labelName, fontsize=20)
+    colorbar.ax.tick_params(labelsize=20)
     # here set the labelsize by 20
     fileName = '{}.pdf'.format(fileName+"Layout")
     plt.savefig(fileName, bbox_inches='tight')
