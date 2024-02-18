@@ -22,6 +22,12 @@ supervisor.scheduler.meta:
 
 	cp target/tagawarescheduler-1.0.jar  $STORM_HOME/lib/
 
+### Add the following content to configuration file $STORM_HOME/conf/storm.yaml
+
+	storm.scheduler: "sys.cloud.tagawarescheduler.TagAwareScheduler"
+
+### Restart Apache Storm
+
 ### Running testing application
 
 	bin/storm jar examples/storm-starter/target/storm-starter-2.1.0.jar org.apache.storm.starter.WordCountTopologyTagAware wordcountTagAware 
