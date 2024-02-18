@@ -81,3 +81,7 @@ cp CustomScheduler/target/*.jar $HOME/storm/lib/
 
 * Using Kubernetes to manage Apache Storm cluster
     * check the file _container/kube-storm/README.md_
+
+
+### Attention
+* If you want to run this experiment on Arm Architecture, such as Raspberry Pi. We recommend you change Apache Storm from version 2.1.0 to version 1.2.4. 
