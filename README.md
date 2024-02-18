@@ -1,6 +1,6 @@
 ## Artifact for the article "High-throughput Real-time Edge Stream Processing with Topology-Aware Resource Matching" 
 
-In this Git repository, you will find the code for running the experiments, the inputs used (the workload, the solar irradiation, parameters and so on), and the instructions to run the experiments and obtain the results.
+In this Git repository, you will find the code for running the experiments, and the instructions to run the experiments and obtain the results.
 
 ### Directory description
 
