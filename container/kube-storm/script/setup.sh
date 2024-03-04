@@ -28,4 +28,9 @@ sleep 10
 echo "YourServerPassword" | sudo -S bash /home/cc/storm/container/kube-storm/script/nginx-proxy.sh
 
 sleep 10
-#bash change_worker_hosts.sh
+
+bash create_storm_worker.sh
+
+bash change_worker_hosts.sh
+
+
