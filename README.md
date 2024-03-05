@@ -83,5 +83,15 @@ cp CustomScheduler/target/*.jar $HOME/storm/lib/
     * check the file _container/kube-storm/README.md_
 
 
+## Run all experiment to collect data
+
+To execute the experiments you must use the following command: 
+
+```
+bash ./experiment/run.sh 
+```
+
+This command will create four application in a sequential way to reproduce the experiments and execute them. The script file (run.sh) automate the execution of the experiments and have 3 main steps. In the first step, the four applications will be created using file run run\_ETL\_sys.sh, run\_ETL\_taxi.sh, run\_PREDICT\_sys.sh, and run\_PREDICT\_taxi.sh (all file located at the ./experiment/scripts/ directory). In the second step, after the creating of the Edge stream processing application, the data for generating the plots and the tables will be collected (files ./experiment/scripts/perf.py). Finally, in the last step, the data can be extracted by using ./riot-bench/experiment/scripts/read\_metric\_data.py. It takes 2 hours to run the entire workflow.
+
 ### Attention
-* If you want to run this experiment on Arm Architecture, such as Raspberry Pi. We recommend you change Apache Storm from version 2.1.0 to version 1.2.4. 
+* If you want to run this experiment on Arm Architecture, such as Raspberry Pi Device. We recommend you change Apache Storm from version 2.1.0 to version 1.2.4. Apache Storm (Version >= 2.0) can't run at Arm Architecture. Otherwise, you need to build one of library for Arm architecture. 
