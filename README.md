@@ -55,7 +55,7 @@ At least 4 GB of RAM for running the experiments, more details in the Instructio
     cd $HOME/storm
     ```
 
-    * Clone the EdgeStreamProcessing Git repository to your local machine using the command and extract the files into the _/home/cc/storm_ directory to simplify the reproduction process. 
+    * Clone the EdgeStreamProcessing Git repository to your local machine using the command and extract the files into the _$HOME/storm_ directory to simplify the reproduction process. 
     
     ```
     git clone https://github.com/pengkang12/EdgeStreamProcessing.git
