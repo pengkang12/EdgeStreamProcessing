@@ -9,12 +9,12 @@ edge3="192.168.122.133"
 edge4="192.168.122.22" 
 edge5="192.168.122.235" 
 
-home="/home/cc/storm/riot-bench/experiment/schedule_policy/network_generator/simulation_network/"
+DIR=$HOME"/storm/experiment/schedule_policy/network_generator/simulation_network/"
 
 for host in  "worker1" "edge1" "edge2" "worker2" "edge4" "edge5"
 do
 
-scp ${home}${host}Net.sh $host:~/.
+scp ${DIR}${host}Net.sh $host:~/.
 echo "syscloud" | ssh -tt $host bash ~/${host}Net.sh $1 $2 $3 $4 
 
 done
