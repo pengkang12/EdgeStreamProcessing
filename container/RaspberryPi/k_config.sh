@@ -1,10 +1,5 @@
 #!/bin/bash
 
-#reference doc:
-#  https://forum.linuxfoundation.org/discussion/864693/the-repository-http-apt-kubernetes-io-kubernetes-xenial-release-does-not-have-a-release-file
-#  https://manjit28.medium.com/installing-kubernetes-cluster-on-ubuntu-20-04-or-raspberry-pi-ubuntu-a7eec0856217
- 
-
 # specify kubernetes' version you want to install.
 version=1.24
 
