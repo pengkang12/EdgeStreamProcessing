@@ -82,6 +82,29 @@ cp CustomScheduler/target/*.jar $HOME/storm/lib/
 * Using Kubernetes to manage Apache Storm cluster
     * check the file _container/kube-storm/README.md_
 
+## Install MQTT 
+```
+sudo apt update -y && sudo apt install mosquitto mosquitto-clients -y
+
+sudo nano /etc/mosquitto/conf.d/default.conf
+```
+Inside the newly opened text editor paste the following instructions:
+```
+allow_anonymous false
+password_file /etc/mosquitto/passwd
+```
+
+Then, close the text editor (CTRL + X / Y / Enter) and restart Mosquitto via:
+
+```
+sudo systemctl restart mosquitto
+```
+
+## Install Redis
+
+```
+sudo apt install redis-server
+```
 
 ## Run all experiment to collect data
 
