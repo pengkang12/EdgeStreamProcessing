@@ -15,11 +15,11 @@ public class JRedis{
     String appName;
     Jedis jedis;
     Pipeline p;
-    String HOSTNAME="192.168.122.204";  
+    String HOSTNAME="127.0.0.1";  
     
     public JRedis(){
         this.threshold = GlobalConstants.thresholdFlushToLog; //2000 etc
-    	this.appName = "/home/cc/test_test.log";
+    	this.appName = "/tmp/test_test.log";
         this.jedis = new Jedis(this.HOSTNAME, 6379);
         this.p = jedis.pipelined(); 
  
