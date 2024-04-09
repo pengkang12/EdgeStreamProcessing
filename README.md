@@ -100,10 +100,24 @@ Then, close the text editor (CTRL + X / Y / Enter) and restart Mosquitto via:
 sudo systemctl restart mosquitto
 ```
 
+You need to modify these two files: 
+```
+riot-bench/modules/tasks/src/main/resources/tasks.properties
+riot-bench/modules/tasks/src/main/resources/tasks_TAXI.properties
+```
+change IP to your IP address
+```
+IO.MQTT_PUBLISH.APOLLO_URL=tcp://Your-MQTT-ip-address:1883
+IO.MQTT_SUBSCRIBE.APOLLO_URL=tcp://Your-MQTT-ip-address:1883
+```
 ## Install Redis
 
 ```
 sudo apt install redis-server
+```
+Modify this file, change hostname to your redis hostname.
+```
+riot-bench/modules/storm/src/main/java/in/dream_lab/bm/stream_iot/storm/genevents/logging/JRedis.java
 ```
 
 ## Run all experiment to collect data
