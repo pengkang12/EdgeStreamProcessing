@@ -22,6 +22,8 @@ In this Git repository, you will find the code for running the experiments, and 
 * Any modern x86 or x64 CPU is appropriate to execute the experiments.
 At least 4 GB of RAM for running the experiments, more details in the Instructions section.
 
+* For Arm architecture ( Raspberry Pi and Jetson Nano), the apache storm version should be 1.2.4. If you want to use a higher version of apache storm, you need compile additional library by yourself. 
+
 ### Software Requirements
 * Operating system
     * Ubuntu 18.04/20.04
