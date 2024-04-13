@@ -1,0 +1,14 @@
+# build zookeeper and test it
+
+sudo docker build -t ${your_name}/zookeeper .
+
+sudo docker run -it -p 2183:2183 --rm ${your_name}/zookeeper /bin/bash
+
+# go to another terminal
+
+telnet localhost 2181
+
+# then, type:
+srvr
+
+# 'srvr' will print zookeeper information.

@@ -1,0 +1,21 @@
+#!/bin/sh
+
+cat >> conf/storm.yaml <<EOF
+storm.local.dir: "/tmp"
+nimbus.thrift.port: 6627
+EOF
+
+if [ -n "$1" ]; then
+   cat >> conf/storm.yaml <<EOF
+storm.zookeeper.servers:
+- "$1"
+EOF
+fi
+
+if [ -n "$2" ]; then
+   cat >> conf/storm.yaml <<EOF
+nimbus.seeds: ["$2"]
+EOF
+fi   
+
+cat conf/storm.yaml
