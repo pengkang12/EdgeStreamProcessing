@@ -14,7 +14,7 @@ fi
 
 if [ -n "$2" ]; then
    cat >> conf/storm.yaml <<EOF
-nimbus.seeds: ["$2"]
+nimbus.host: "$2"
 EOF
 fi   
 
