@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # specify kubernetes' version you want to install.
-version=1.24
+version=1.25
 
 mkdir /etc/apt/keyrings/
 
@@ -14,3 +14,6 @@ apt update
 echo "apt install -y kubeadm=${version}.1-1.1 kubelet=${version}.1-1.1 kubectl=${version}.1-1.1 "
 
 apt install -y kubeadm=${version}.1-1.1 kubelet=${version}.1-1.1 kubectl=${version}.1-1.1 --allow-downgrades 
+
+echo "please run the following command to build kubernete cluster"
+echo "sudo kubeadm init  --pod-network-cidr 192.168.0.0/16 --ignore-preflight-errors=... |sudo  tee /var/log/kubeinit.log"
