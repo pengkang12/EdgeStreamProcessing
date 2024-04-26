@@ -17,7 +17,7 @@
         "containers": [
           {
             "name": "server",
-            "image": "kevin2333/mosquitto",
+            "image": "kevin2333/rasp-mqtt",
             "env":[
               {
                 "name": "POD_NAMESPACE",

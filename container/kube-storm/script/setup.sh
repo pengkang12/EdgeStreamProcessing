@@ -12,7 +12,7 @@ kube_pod(){
 
 # label master'name as master
 nodeName="master"
-kubectl label master name=$nodeName
+kubectl label node master name=$nodeName
 
 # build mqtt, specify which node to host mosquitto
 kube_pod mosquitto/mosquitto-bridge-pods.json $nodeName

@@ -11,18 +11,16 @@
     "containers": [
       {
         "name": "ui",
-        "image": "kevin2333/storm-ui",
+        "image": "kevin2333/rasp-storm-ui",
+        "imagePullPolicy": "Always",
         "ports": [
           {
             "containerPort": 8080
           }
         ],
-	"imagePullPolicy": "Always",
         "resources": {
           "limits": {
-            "cpu": "200m",
-            "memory": "1Gi",
-            "ephemeral-storage": "2Gi"
+            "cpu": "200m"
           }
         }
       }

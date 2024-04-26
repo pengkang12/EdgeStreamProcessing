@@ -11,8 +11,7 @@
     "containers": [
       {
         "name": "nimbus",
-        "image": "kevin2333/storm-nimbus:latest",
-	"imagePullPolicy": "Always",
+        "image": "kevin2333/rasp-storm-nimbus:latest",
         "ports": [
           {
             "containerPort": 6627
@@ -21,8 +20,8 @@
         "resources": {
           "limits": {
             "cpu": "1600m",
-            "memory": "2Gi",
-            "ephemeral-storage": "4Gi"
+            "memory": "1Gi",
+            "ephemeral-storage": "1Gi"
           }
         }
       }
