@@ -1,4 +1,4 @@
-FROM kevin2333/storm-base:latest
+FROM kevin2333/rasp-storm-base:latest
 
 MAINTAINER peng kang<peng.kang@utsa.edu>
 

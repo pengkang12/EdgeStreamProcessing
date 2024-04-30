@@ -15,38 +15,52 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-$.tablesorter.addParser({
-    id:'stormtimestr',
-    is:function (s) {
-        return false;
-    },
-    format:function (s) {
-        if (s.search('All time') != -1) {
-            return 1000000000;
-        }
-        var total = 0;
-        $.each(s.split(' '), function (i, v) {
-            var amt = parseInt(v);
-            if (v.search('ms') != -1) {
-                total += amt;
-            } else if (v.search('s') != -1) {
-                total += amt * 1000;
-            } else if (v.search('m') != -1) {
-                total += amt * 1000 * 60;
-            } else if (v.search('h') != -1) {
-                total += amt * 1000 * 60 * 60;
-            } else if (v.search('d') != -1) {
-                total += amt * 1000 * 60 * 60 * 24;
-            }
-        });
-        return total;
-    },
-    type:'numeric'
-});
-
 $(function () {
     $(".js-only").show();
 });
+
+//Add in custom sorting for some data types
+$.extend( $.fn.dataTableExt.oSort, {
+  "time-str-pre": function (raw) {
+    var s = $(raw).text();
+    if (s == "") {
+      s = raw;
+    }
+    if (s.search('All time') != -1) {
+      return 1000000000;
+    }
+    var total = 0;
+    $.each(s.split(' '), function (i, v) {
+       var amt = parseInt(v);
+       if (v.search('ms') != -1) {
+         total += amt;
+       } else if (v.search('s') != -1) {
+         total += amt * 1000;
+       } else if (v.search('m') != -1) {
+         total += amt * 1000 * 60;
+       } else if (v.search('h') != -1) {
+         total += amt * 1000 * 60 * 60;
+       } else if (v.search('d') != -1) {
+         total += amt * 1000 * 60 * 60 * 24;
+       }
+     });
+     return total;
+   },
+   "time-str-asc": function ( a, b ) {
+      return ((a < b) ? -1 : ((a > b) ? 1 : 0));
+    },
+    "time-str-desc": function ( a, b ) {
+      return ((a < b) ? 1 : ((a > b) ? -1 : 0));
+    }
+});
+
+var minEntriesToShowPagination = 20;
+function dtAutoPage(selector, conf) {
+  if ($(selector.concat(" tr")).length <= minEntriesToShowPagination) {
+    $.extend(conf, {paging: false});
+  }
+  return $(selector).DataTable(conf);
+}
 
 function toggleSys() {
     var sys = $.cookies.get('sys') || false;
@@ -68,23 +82,87 @@ function ensureInt(n) {
     return isInt;
 }
 
-function confirmAction(id, name, action, wait, defaultWait) {
+function sendRequest(id, action, extra, body, cb){
+   var opts = {
+        type:'POST',
+        url:'/api/v1/topology/' + id + '/' + action
+    };
+
+    if (body) {
+        opts.data = JSON.stringify(body);
+        opts.contentType = 'application/json; charset=utf-8';
+    }
+
+    opts.url += extra ? "/" + extra : "";
+
+    $.ajax(opts).always(function(data){
+        cb (data);
+    }).fail (function(){
+        alert("Error while communicating with Nimbus.");
+    });
+}
+
+function confirmComponentAction(topologyId, componentId, componentName, action, param, defaultParamValue, paramText, actionText) {
+    var opts = {
+        type:'POST',
+        url:'/api/v1/topology/' + topologyId + '/component/' + componentId + '/' + action
+    };
+    if (actionText === undefined) {
+        actionText = action;
+    }
+    if (param) {
+        var paramValue = prompt('Do you really want to ' + actionText + ' component "' + componentName + '"? ' +
+                                  'If yes, please, specify ' + paramText + ':',
+                                  defaultParamValue);
+        if (paramValue != null && paramValue != "" && ensureInt(paramValue)) {
+            opts.url += '/' + paramValue;
+        } else {
+            return false;
+        }
+    } else {
+        if (typeof defaultParamValue !== 'undefined') {
+            opts.url +=  '/' + defaultParamValue;
+        }
+        if (!confirm('Do you really want to ' + actionText + ' component "' + componentName + '"?')) {
+            return false;
+        }
+    }
+
+    $("input[type=button]").attr("disabled", "disabled");
+    $.ajax(opts).always(function () {
+        window.location.reload();
+    }).fail(function () {
+        alert("Error while communicating with Nimbus.");
+    });
+
+    return false;
+}
+
+function confirmAction(id, name, action, param, defaultParamValue, paramText, actionText) {
     var opts = {
         type:'POST',
         url:'/api/v1/topology/' + id + '/' + action
     };
-    if (wait) {
-        var waitSecs = prompt('Do you really want to ' + action + ' topology "' + name + '"? ' +
-                              'If yes, please, specify wait time in seconds:',
-                              defaultWait);
+    if (actionText === undefined) {
+        actionText = action;
+    }
+    if (param) {
+        var paramValue = prompt('Do you really want to ' + actionText + ' topology "' + name + '"? ' +
+                              'If yes, please, specify ' + paramText + ':',
+                              defaultParamValue);
 
-        if (waitSecs != null && waitSecs != "" && ensureInt(waitSecs)) {
-            opts.url += '/' + waitSecs;
+        if (paramValue != null && paramValue != "" && ensureInt(paramValue)) {
+            opts.url += '/' + paramValue;
         } else {
             return false;
         }
-    } else if (!confirm('Do you really want to ' + action + ' topology "' + name + '"?')) {
-        return false;
+    } else {
+        if (typeof defaultParamValue !== 'undefined') {
+            opts.url +=  '/' + defaultParamValue;
+        }
+        if (!confirm('Do you really want to ' + actionText + ' topology "' + name + '"?')) {
+            return false;
+        }
     }
 
     $("input[type=button]").attr("disabled", "disabled");
@@ -98,15 +176,8 @@ function confirmAction(id, name, action, wait, defaultWait) {
 }
 
 $(function () {
-    var placements = ['above', 'below', 'left', 'right'];
-    for (var i in placements) {
-      $('.tip.'+placements[i]).twipsy({
-          live: true,
-          placement: placements[i],
-          delayIn: 1000
-      });
-    }
-});
+  $('[data-toggle="tooltip"]').tooltip()
+})
 
 function formatConfigData(data) {
     var mustacheFormattedData = {'config':[]};
@@ -114,7 +185,7 @@ function formatConfigData(data) {
        if(data.hasOwnProperty(prop)) {
            mustacheFormattedData['config'].push({
                'key': prop,
-               'value': data[prop]
+               'value': JSON.stringify(data[prop])
            });
        }
     }
@@ -134,22 +205,38 @@ function formatErrorTimeSecs(response){
 function renderToggleSys(div) {
     var sys = $.cookies.get("sys") || false;
     if(sys) {
-       div.append("<span data-original-title=\"Use this to toggle inclusion of storm system components.\" class=\"tip right\"><input onclick=\"toggleSys()\" value=\"Hide System Stats\" type=\"button\"></span>");
+       div.append("<span data-original-title=\"Use this to toggle inclusion of storm system components.\" class=\"tip right\"><input onclick=\"toggleSys()\" value=\"Hide System Stats\" type=\"button\" class=\"btn btn-default\"></span>");
     } else {
-       div.append("<span class=\"tip right\" title=\"Use this to toggle inclusion of storm system components.\"><input onclick=\"toggleSys()\" value=\"Show System Stats\" type=\"button\"></span>");
+       div.append("<span class=\"tip right\" title=\"Use this to toggle inclusion of storm system components.\"><input onclick=\"toggleSys()\" value=\"Show System Stats\" type=\"button\" class=\"btn btn-default\"></span>");
     }
 }
 
-function topologyActionJson(id, encodedId, name,status,msgTimeout) {
+function topologyActionJson(id, encodedId, name, status, msgTimeout, loggersTotal, debug, samplingPct) {
     var jsonData = {};
     jsonData["id"] = id;
     jsonData["encodedId"] = encodedId;
     jsonData["name"] = name;
     jsonData["msgTimeout"] = msgTimeout;
-    jsonData["activateStatus"] = (status === "ACTIVE") ? "disabled" : "enabled";
+    jsonData["activateStatus"] = (status === "INACTIVE") ? "enabled" : "disabled";
     jsonData["deactivateStatus"] = (status === "ACTIVE") ? "enabled" : "disabled";
     jsonData["rebalanceStatus"] = (status === "ACTIVE" || status === "INACTIVE" ) ? "enabled" : "disabled";
     jsonData["killStatus"] = (status !== "KILLED") ? "enabled" : "disabled";
+    jsonData["startDebugStatus"] = (status === "ACTIVE" && loggersTotal!=null && loggersTotal!=0 && !debug) ? "enabled" : "disabled";
+    jsonData["stopDebugStatus"] = (status === "ACTIVE" && debug) ? "enabled" : "disabled";
+    jsonData["loggersDisabled"] = loggersTotal==null || loggersTotal==0;
+    jsonData["currentSamplingPct"] = samplingPct;
+    return jsonData;
+}
+
+function componentActionJson(encodedTopologyId, encodedId, componentName, status, loggersTotal, debug, samplingPct) {
+    var jsonData = {};
+    jsonData["encodedTopologyId"] = encodedTopologyId;
+    jsonData["encodedId"] = encodedId;
+    jsonData["componentName"] = componentName;
+    jsonData["startDebugStatus"] = (status === "ACTIVE" && loggersTotal!=null && loggersTotal!=0 && !debug) ? "enabled" : "disabled";
+    jsonData["stopDebugStatus"] = (status === "ACTIVE" && debug) ? "enabled" : "disabled";
+    jsonData["loggersDisabled"] = loggersTotal==null || loggersTotal==0;
+    jsonData["currentSamplingPct"] = samplingPct;
     return jsonData;
 }
 
@@ -173,3 +260,211 @@ $.blockUI.defaults.css = {
     opacity: .5,
     color: '#fff',margin:0,width:"30%",top:"40%",left:"35%",textAlign:"center"
 };
+
+// add a url query param to static (templates normally) ajax requests
+// for cache busting
+function getStatic(url, cb) {
+    return $.ajax({
+        url: url,
+        data: {
+            '_ts': '202110011907'
+        },
+        success: cb
+    });
+};
+
+function makeSupervisorWorkerStatsTable (response, elId, parentId) {
+    makeWorkerStatsTable (response, elId, parentId, "supervisor");
+};
+
+function makeTopologyWorkerStatsTable (response, elId, parentId) {
+    makeWorkerStatsTable (response, elId, parentId, "topology");
+};
+
+var formatComponents = function (row) {
+    if (!row) return;
+    var result = '';
+    Object.keys(row.componentNumTasks || {}).sort().forEach (function (component){
+        var numTasks = row.componentNumTasks[component];
+        result += '<a class="worker-component-button btn btn-xs btn-primary" href="/component.html?id=' + 
+                        component + '&topology_id=' + row.topologyId + '">';
+        result += component;
+        result += '<span class="badge">' + numTasks + '</span>';
+        result += '</a>';
+    });
+    return result;
+};
+
+var format = function (row){
+    var result = '<div class="worker-child-row">Worker components: ';
+    result += formatComponents (row) || 'N/A';
+    result += '</div>';
+    return result;
+};
+
+// Build a table of per-worker resources and components (when permitted)
+var makeWorkerStatsTable = function (response, elId, parentId, type) {
+    var showCpu = response.schedulerDisplayResource;
+
+    var columns = [
+        {
+            data: 'host', 
+            render: function (data, type, row){
+                return type === 'display' ? 
+                    ('<a href="/supervisor.html?host=' + data + '">' + data + '</a>') :
+                    data;
+            }
+        },
+        {
+            data: 'port',
+            render: function (data, type, row) {
+                var logLink = row.workerLogLink;
+                return type === 'display' ?
+                    ('<a href="' + logLink + '">' + data + '</a>'): 
+                    data;
+            }
+        },
+        { 
+            data: function (row, type){
+                // if we are showing or filtering, using the formatted
+                // uptime, else use the seconds (for sorting)
+                return (type === 'display' || type === 'filter') ? 
+                    row.uptime :
+                    row.uptimeSeconds;
+            }
+        },
+        { data: 'executorsTotal' },
+        { 
+            data: function (row){
+                return row.assignedMemOnHeap + row.assignedMemOffHeap;
+            }
+        },
+    ];
+
+    if (showCpu) {
+        columns.push ({ data: 'assignedCpu' });
+    }
+
+    columns.push ({ 
+        data: function (row, type, obj, dt) {
+            var components = Object.keys(row.componentNumTasks || {});
+            if (components.length === 0){
+                // if no components returned, it means the worker
+                // topology isn't one the user is authorized to see
+                return "N/A";
+            }
+
+            if (type == 'filter') {
+                return components;
+            }
+
+            if (type == 'display') {
+                // show a button to toggle the component row
+                return '<button class="btn btn-xs btn-info details-control" type="button">' +
+                       components.length + ' components</button>';
+            }
+
+            return components.length;
+        }
+    });
+
+    switch (type){
+        case 'topology':
+            // the topology page has the supervisor id as the second column in the worker table
+            columns.splice(1, 0, {
+                data: 'supervisorId', 
+                render: function (data, type, row){
+                    return type === 'display' ? 
+                        ('<a href="/supervisor.html?id=' + data + '">' + data + '</a>') :
+                        data;
+                }
+            });
+            break;
+        case 'supervisor':
+            // the supervisor page has the topology name as the first column in the worker table
+            columns.unshift ({
+                data: function (row, type){
+                    return type === 'display' ? 
+                        ('<a href="/topology.html?id=' + row.topologyId + '">' + row.topologyName + '</a>') :
+                        row.topologyId;
+                }
+            });
+            break;
+    }
+
+    var initializeComponents = function (){
+        var show = $.cookies.get("showComponents") || false;
+
+        // toggle all components visibile/invisible
+        $(elId + ' tr').each(function (){
+            var dt = $(elId).dataTable();
+            showComponents(dt.api().row(this), show);
+        });
+    };
+
+    var pagingEnabled = response && response.workers && 
+                            response.workers.length > minEntriesToShowPagination;
+
+    var workerStatsTable = $(elId).DataTable({
+        paging: pagingEnabled,
+        data: response.workers,
+        autoWidth: false,
+        columns: columns,
+        initComplete: function (){
+            // add a "Toggle Components" button
+            renderToggleComponents ($(elId + '_filter'), elId);
+        },
+        drawCallback: function (){
+            initializeComponents();
+        }
+    });
+
+    // Add event listener for opening and closing components row
+    // on a per component basis
+    $(elId + ' tbody').on('click', 'button.details-control', function () {
+        var tr = $(this).closest('tr');
+        var row = workerStatsTable.row(tr);
+        showComponents(row, !row.child.isShown());
+    });
+
+    $(parentId + ' #toggle-on-components-btn').on('click', 'input', function (){
+        toggleComponents(elId);
+    });
+
+    $(elId + ' [data-toggle="tooltip"]').tooltip();
+};
+
+function renderToggleComponents(div, targetTable) {
+     var showComponents = $.cookies.get("showComponents") || false;
+     div.append("<span id='toggle-on-components-btn' class=\"tip right\" " +
+                "title=\"Use this to toggle visibility of worker components.\">"+
+                    "<input value=\"Toggle Components\" type=\"button\" class=\"btn btn-info\">" + 
+                "</span>");
+}
+
+function showComponents(row, open) {
+    var tr = $(this).closest('tr');
+    if (!open) {
+        // This row is already open - close it
+        row.child.hide();
+        tr.removeClass('shown');
+    } else {
+        // Open this row
+        row.child (format (row.data())).show();
+        tr.addClass('shown');
+    }
+}
+
+function toggleComponents(elId) {
+    var show = $.cookies.get('showComponents') || false;
+    show = !show;
+
+    var exDate = new Date();
+    exDate.setDate(exDate.getDate() + 365);
+
+    $.cookies.set('showComponents', show, {'path':'/', 'expiresAt':exDate.toUTCString()});
+    $(elId + ' tr').each(function (){
+        var dt = $(elId).dataTable();
+        showComponents(dt.api().row(this), show);
+    });
+}

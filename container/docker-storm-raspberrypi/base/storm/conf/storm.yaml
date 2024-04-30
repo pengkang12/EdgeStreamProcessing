@@ -46,3 +46,18 @@
 #     parallelism.hint: 1
 #     argument:
 #       - endpoint: "metrics-collector.mycompany.org"
+#
+storm.zookeeper.servers:
+    - "192.168.1.22"
+storm.local.dir: "/home/cc/storm/data"
+ui.port: 9090
+nimbus.seeds: ["192.168.1.22"]
+nimbus.thrift.port: 6667
+supervisor.slots.ports:
+    - 6700
+    - 6701
+    - 6702
+    - 6703
+    - 6704
+    - 6705
+    - 6706
