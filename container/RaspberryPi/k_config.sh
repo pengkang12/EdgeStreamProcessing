@@ -47,7 +47,7 @@ EOF
 
 # 
 sudo swapoff -a
-
+# the following command only running at master node
 echo "-------------------------------------------------------------"
 echo "please run the following command to build kubernete cluster"
 echo "sudo systemctl restart containerd.service"
