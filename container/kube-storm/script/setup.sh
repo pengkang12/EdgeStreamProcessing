@@ -11,20 +11,20 @@ kube_pod(){
 }
 
 # label master'name as master
-nodeName="master"
-kubectl label node master name=$nodeName
+name="master"
+kubectl label node master name=$name
 
 # build mqtt, specify which node to host mosquitto
-kube_pod mosquitto/mosquitto-bridge-pods.json $nodeName
-kube_pod zookeeper/zookeeper.json $nodeName
+kube_pod mosquitto/mosquitto-bridge-pods.json $name
+kube_pod zookeeper/zookeeper.json $name
 
 kube_pod zookeeper/zookeeper-service.json
 
 sleep 60
-kube_pod storm-nimbus.json $nodeName
+kube_pod storm-nimbus.json $name
 kube_pod storm-nimbus-service.json
 sleep 30
-kube_pod storm-ui.json $nodeName
+kube_pod storm-ui.json $name
 sleep 30
 
 kubectl get pod --show-labels
